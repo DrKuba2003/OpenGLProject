@@ -53,8 +53,11 @@ bool isDay = true;
 bool isBlinn = false;
 glm::vec3 lightDir(0.0f, 0.0f, 0.0f);
 
+// moving cube
 bool isMovingObj = true;
 float movingObjTime = NULL;
+float movingObjRadius = 5.0f;
+float movingObjSpeed = 0.75f;
 
 int main()
 {
@@ -280,9 +283,9 @@ int main()
 
 	int sectorCount = 36;
 	int stackCount = 18;
-	float radius = 5.0f;
+	float sphereRadius = 5.0f;
 	float x, y, z, xy;                              // vertex position
-	float nx, ny, nz, lengthInv = 1.0f / radius;    // normal
+	float nx, ny, nz, lengthInv = 1.0f / sphereRadius;    // normal
 	float s, t;                                     // texCoord
 
 	float sectorStep = 2 * PI / sectorCount;
@@ -293,8 +296,8 @@ int main()
 	for (int i = 0; i <= stackCount; ++i)
 	{
 		stackAngle = PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
-		xy = radius * cosf(stackAngle);             // r * cos(u)
-		z = radius * sinf(stackAngle);              // r * sin(u)
+		xy = sphereRadius * cosf(stackAngle);             // r * cos(u)
+		z = sphereRadius * sinf(stackAngle);              // r * sin(u)
 
 		// add (sectorCount+1) vertices per stack
 		// the first and last vertices have same position and normal, but different tex coords
@@ -398,16 +401,14 @@ int main()
 		float ambientValue = isDay ? 0.05f : 0.005f;
 
 		// count for moving object and camera
-		float radius = 5.0f;
-		float speed = 0.75f;
 		if (movingObjTime == NULL || isMovingObj)
 		{
-			movingObjTime += speed * deltaTime;
+			movingObjTime += movingObjSpeed * deltaTime;
 		}
-		float cubeX = static_cast<float>(sin(movingObjTime) * radius);
-		float cubeZ = static_cast<float>(cos(movingObjTime) * radius);
-		float lightX = static_cast<float>(sin(movingObjTime + speed * 0.08f) * radius);
-		float lightZ = static_cast<float>(cos(movingObjTime + speed * 0.08f) * radius);
+		float cubeX = static_cast<float>(sin(movingObjTime) * movingObjRadius);
+		float cubeZ = static_cast<float>(cos(movingObjTime) * movingObjRadius);
+		float lightX = static_cast<float>(sin(movingObjTime + movingObjSpeed * 0.08f) * movingObjRadius);
+		float lightZ = static_cast<float>(cos(movingObjTime + movingObjSpeed * 0.08f) * movingObjRadius);
 		glm::vec3 movingObjPos = glm::vec3(cubeX, 0.0f, -10.0f + cubeZ);
 		glm::vec3 movingLightPos = glm::vec3(lightX, 0.0f, -10.0f + lightZ);
 		// update camera pos
