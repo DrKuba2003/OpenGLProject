@@ -148,7 +148,6 @@
     <None Include="light_cube.vs" />
     <None Include="multiple_lights.fs" />
     <None Include="multiple_lights.vs" />
-    <None Include="multiple_lights_blinn.fs" />
     <None Include="skybox.fs" />
     <None Include="skybox.vs" />
     <None Include="sphere.fs" />

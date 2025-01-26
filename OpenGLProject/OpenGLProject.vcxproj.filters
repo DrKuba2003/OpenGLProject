@@ -64,8 +64,5 @@
     <None Include="skybox.fs">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="multiple_lights_blinn.fs">
-      <Filter>Source Files</Filter>
-    </None>
   </ItemGroup>
 </Project>
