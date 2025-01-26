@@ -97,9 +97,9 @@ int main()
 
 	// build and compile our shader zprogram
 	// ------------------------------------
-	Shader lightingShader("6.multiple_lights.vs", "6.multiple_lights.fs");
-	Shader lightingShaderBlinn("6.multiple_lights.vs", "multiple_lights_blinn.fs");
-	Shader lightCubeShader("6.light_cube.vs", "6.light_cube.fs");
+	Shader lightingShader("multiple_lights.vs", "multiple_lights.fs");
+	Shader lightingShaderBlinn("multiple_lights.vs", "multiple_lights_blinn.fs");
+	Shader lightCubeShader("light_cube.vs", "light_cube.fs");
 	Shader sphereShader("sphere.vs", "sphere.fs");
 	Shader skyboxShader("skybox.vs", "skybox.fs");
 
@@ -239,7 +239,6 @@ int main()
 	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
 
 	// Cubemaps
 	std::vector<std::string> faces

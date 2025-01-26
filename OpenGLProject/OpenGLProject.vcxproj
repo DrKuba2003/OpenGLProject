@@ -144,10 +144,10 @@
     <ClInclude Include="..\Includes\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="6.light_cube.fs" />
-    <None Include="6.light_cube.vs" />
-    <None Include="6.multiple_lights.fs" />
-    <None Include="6.multiple_lights.vs" />
+    <None Include="light_cube.fs" />
+    <None Include="light_cube.vs" />
+    <None Include="multiple_lights.fs" />
+    <None Include="multiple_lights.vs" />
     <None Include="multiple_lights_blinn.fs" />
     <None Include="skybox.fs" />
     <None Include="skybox.vs" />
