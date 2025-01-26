@@ -83,7 +83,11 @@ void main()
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);    
     // phase 3: spot light
     for(int i = 0; i < NR_SPOT_LIGHTS; i++)
-        result += CalcSpotLight(spotLight[i], norm, FragPos, viewDir);    
+    {
+        if (spotLight[i].diffuse == vec3(0.0, 0.0, 0.0)) continue;
+            
+        result += CalcSpotLight(spotLight[i], norm, FragPos, viewDir);      
+    }  
     
     float fog_factor = CalcFogFactor(FragPos);
     result = mix(fogColor, result, fog_factor);

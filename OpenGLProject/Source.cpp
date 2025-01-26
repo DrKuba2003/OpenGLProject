@@ -51,6 +51,7 @@ float lastFrame = 0.0f;
 // lighting
 bool isDay = true;
 bool isBlinn = false;
+bool isSpotlightCurrCamera = true;
 glm::vec3 lightDir(0.0f, 0.0f, 0.0f);
 
 // moving cube
@@ -470,14 +471,15 @@ int main()
 		currLightingShader.setFloat("pointLights[3].linear", 0.09f);
 		currLightingShader.setFloat("pointLights[3].quadratic", 0.032f);
 		// spotLight
+		float x = isSpotlightCurrCamera ? 1.0f : 0.0f;
 		currLightingShader.setVec3("spotLight[0].position", getCurrentCamera().Position);
 		currLightingShader.setVec3("spotLight[0].direction", getCurrentCamera().Front);
 		currLightingShader.setVec3("spotLight[0].ambient", 0.0f, 0.0f, 0.0f);
-		currLightingShader.setVec3("spotLight[0].diffuse", 1.0f, 1.0f, 1.0f);
-		currLightingShader.setVec3("spotLight[0].specular", 1.0f, 1.0f, 1.0f);
-		currLightingShader.setFloat("spotLight[0].constant", 1.0f);
-		currLightingShader.setFloat("spotLight[0].linear", 0.09f);
-		currLightingShader.setFloat("spotLight[0].quadratic", 0.032f);
+		currLightingShader.setVec3("spotLight[0].diffuse", 1.0f * x, 1.0f * x, 1.0f * x);
+		currLightingShader.setVec3("spotLight[0].specular", 1.0f * x, 1.0f * x, 1.0f * x);
+		currLightingShader.setFloat("spotLight[0].constant", 1.0f * x);
+		currLightingShader.setFloat("spotLight[0].linear", 0.09f * x);
+		currLightingShader.setFloat("spotLight[0].quadratic", 0.032f * x);
 		currLightingShader.setFloat("spotLight[0].cutOff", glm::cos(glm::radians(12.5f)));
 		currLightingShader.setFloat("spotLight[0].outerCutOff", glm::cos(glm::radians(15.0f)));
 		
@@ -713,6 +715,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		isBlinn = !isBlinn;
 	if (key == GLFW_KEY_P && action == GLFW_PRESS)
 		isMovingObj = !isMovingObj;
+	if (key == GLFW_KEY_T && action == GLFW_PRESS)
+		isSpotlightCurrCamera = !isSpotlightCurrCamera;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
