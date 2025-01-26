@@ -15,11 +15,10 @@
 #include <vector>
 #include <string>
 
+// TODO Dodanie map wektorów normalnych/bump mapping
 // TODO musi istnieæ mo¿liwoœæ zmiany (rêcznej) wzglednego kierunku 
 // œwiecenia reflektora/ów umieszczonego na obiekcie ruchomym
 // TODO Jeden z nich g³adki - kula, torus lub powierzchnia Beziera
-// TODO Dodanie map wektorów normalnych/bump mapping
-// TODO mo¿liwoœæ zmiany sk³adowej zwierciadlanej Phong/Blinn
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -367,21 +366,8 @@ int main()
 
 #pragma endregion
 
-	// load textures (we now use a utility function to keep the code more organized)
-	// -----------------------------------------------------------------------------
-	unsigned int diffuseMap = loadTexture("resources/textures/container2.png");
-	unsigned int specularMap = loadTexture("resources/textures/container2_specular.png");
-
 	// shader configuration
 	// --------------------
-	lightingShader.use();
-	lightingShader.setInt("material.diffuse", 0);
-	lightingShader.setInt("material.specular", 1);
-
-	lightingShaderBlinn.use();
-	lightingShaderBlinn.setInt("material.diffuse", 0);
-	lightingShaderBlinn.setInt("material.specular", 1);
-
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
 
@@ -427,6 +413,8 @@ int main()
 		Shader currLightingShader = isBlinn ? lightingShaderBlinn : lightingShader;
 		currLightingShader.use();
 		currLightingShader.setVec3("viewPos", getCurrentCamera().Position);
+		currLightingShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+		currLightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
 		currLightingShader.setFloat("material.shininess", 32.0f);
 
 #pragma region UnifromsLight
@@ -508,13 +496,6 @@ int main()
 		// world transformation
 		glm::mat4 model = glm::mat4(1.0f);
 		currLightingShader.setMat4("model", model);
-
-		// bind diffuse map
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, diffuseMap);
-		// bind specular map
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, specularMap);
 
 		// render containers
 		glBindVertexArray(cubeVAO);
