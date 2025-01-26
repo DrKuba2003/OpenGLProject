@@ -29,6 +29,7 @@ unsigned int loadTexture(const char* path);
 unsigned int loadCubemapTexture(std::vector<std::string> faces);
 void changeCameraId(int id);
 Camera getCurrentCamera();
+void ChangeCameraDir(Camera_Movement direction, float deltaTime);
 
 // settings
 const unsigned int SCR_WIDTH = 1200;
@@ -48,9 +49,12 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 // lighting
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 bool isDay = true;
 bool isBlinn = false;
+glm::vec3 lightDir(0.0f, 0.0f, 0.0f);
+
+bool isMovingObj = true;
+float movingObjTime = NULL;
 
 int main()
 {
@@ -396,16 +400,19 @@ int main()
 		// count for moving object and camera
 		float radius = 5.0f;
 		float speed = 0.75f;
-		float cubeX = static_cast<float>(sin(speed * glfwGetTime()) * radius);
-		float cubeZ = static_cast<float>(cos(speed * glfwGetTime()) * radius);
-		float lightX = static_cast<float>(sin(speed * (glfwGetTime() + 0.08f)) * radius);
-		float lightZ = static_cast<float>(cos(speed * (glfwGetTime() + 0.08f)) * radius);
-		float angle = speed * glfwGetTime();
+		if (movingObjTime == NULL || isMovingObj)
+		{
+			movingObjTime += speed * deltaTime;
+		}
+		float cubeX = static_cast<float>(sin(movingObjTime) * radius);
+		float cubeZ = static_cast<float>(cos(movingObjTime) * radius);
+		float lightX = static_cast<float>(sin(movingObjTime + speed * 0.08f) * radius);
+		float lightZ = static_cast<float>(cos(movingObjTime + speed * 0.08f) * radius);
 		glm::vec3 movingObjPos = glm::vec3(cubeX, 0.0f, -10.0f + cubeZ);
 		glm::vec3 movingLightPos = glm::vec3(lightX, 0.0f, -10.0f + lightZ);
 		// update camera pos
 		cameraMovingObj.Position = movingObjPos + glm::vec3(0.0f, 0.6f, 0.0f);
-		cameraMovingObj.Yaw = -glm::degrees(angle);
+		cameraMovingObj.Yaw = -glm::degrees(movingObjTime);
 		cameraMovingObj.updateCameraVectors();
 
 		// be sure to activate shader when setting uniforms/drawing objects
@@ -474,7 +481,7 @@ int main()
 		currLightingShader.setFloat("spotLight[0].outerCutOff", glm::cos(glm::radians(15.0f)));
 		
 		currLightingShader.setVec3("spotLight[1].position", movingLightPos);
-		currLightingShader.setVec3("spotLight[1].direction", cameraMovingObj.Front);
+		currLightingShader.setVec3("spotLight[1].direction", cameraMovingObj.Front + lightDir);
 		currLightingShader.setVec3("spotLight[1].ambient", 0.0f, 0.0f, 0.0f);
 		currLightingShader.setVec3("spotLight[1].diffuse", 1.0f, 1.0f, 1.0f);
 		currLightingShader.setVec3("spotLight[1].specular", 1.0f, 1.0f, 1.0f);
@@ -512,7 +519,7 @@ int main()
 		// Draw moving cube
 		glm::mat4 modelMoving = glm::mat4(1.0f);
 		modelMoving = glm::translate(modelMoving, movingObjPos);
-		modelMoving = glm::rotate(modelMoving, angle, glm::vec3(0.0f, 1.0f, 0.0f));
+		modelMoving = glm::rotate(modelMoving, movingObjTime, glm::vec3(0.0f, 1.0f, 0.0f));
 		currLightingShader.setMat4("model", modelMoving);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -669,6 +676,15 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		ChangeCameraDir(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		ChangeCameraDir(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		ChangeCameraDir(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		ChangeCameraDir(RIGHT, deltaTime);
+
 	if (cameraId == 2)
 	{
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -694,6 +710,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		isDay = !isDay;
 	if (key == GLFW_KEY_B && action == GLFW_PRESS)
 		isBlinn = !isBlinn;
+	if (key == GLFW_KEY_P && action == GLFW_PRESS)
+		isMovingObj = !isMovingObj;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -825,4 +843,17 @@ Camera getCurrentCamera()
 	default:
 		return cameraFPP;
 	}
+}
+
+void ChangeCameraDir(Camera_Movement direction, float deltaTime)
+{
+	float velocity = 0.5f * deltaTime;
+	if (direction == FORWARD)
+		lightDir += velocity;
+	if (direction == BACKWARD)
+		lightDir -= velocity;
+	if (direction == LEFT)
+		lightDir -= velocity;
+	if (direction == RIGHT)
+		lightDir += velocity;
 }
