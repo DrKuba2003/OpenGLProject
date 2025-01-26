@@ -16,8 +16,6 @@
 #include <string>
 
 // TODO Dodanie map wektorów normalnych/bump mapping
-// TODO musi istnieæ mo¿liwoœæ zmiany (rêcznej) wzglednego kierunku 
-// œwiecenia reflektora/ów umieszczonego na obiekcie ruchomym
 // TODO Jeden z nich g³adki - kula, torus lub powierzchnia Beziera
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -30,6 +28,7 @@ unsigned int loadCubemapTexture(std::vector<std::string> faces);
 void changeCameraId(int id);
 Camera getCurrentCamera();
 void ChangeCameraDir(Camera_Movement direction, float deltaTime);
+glm::vec3 CountLightFront();
 
 // settings
 const unsigned int SCR_WIDTH = 1200;
@@ -52,7 +51,8 @@ float lastFrame = 0.0f;
 bool isDay = true;
 bool isBlinn = false;
 bool isSpotlightCurrCamera = true;
-glm::vec3 lightDir(0.0f, 0.0f, 0.0f);
+float lightYaw = 0.0f;
+float lightPitch = 0.0f;
 
 // moving cube
 bool isMovingObj = true;
@@ -471,7 +471,7 @@ int main()
 		currLightingShader.setFloat("pointLights[3].linear", 0.09f);
 		currLightingShader.setFloat("pointLights[3].quadratic", 0.032f);
 		// spotLight
-		float x = isSpotlightCurrCamera ? 1.0f : 0.0f;
+		float x = isSpotlightCurrCamera && cameraId != 1 ? 1.0f : 0.0f;
 		currLightingShader.setVec3("spotLight[0].position", getCurrentCamera().Position);
 		currLightingShader.setVec3("spotLight[0].direction", getCurrentCamera().Front);
 		currLightingShader.setVec3("spotLight[0].ambient", 0.0f, 0.0f, 0.0f);
@@ -484,7 +484,7 @@ int main()
 		currLightingShader.setFloat("spotLight[0].outerCutOff", glm::cos(glm::radians(15.0f)));
 		
 		currLightingShader.setVec3("spotLight[1].position", movingLightPos);
-		currLightingShader.setVec3("spotLight[1].direction", cameraMovingObj.Front + lightDir);
+		currLightingShader.setVec3("spotLight[1].direction", CountLightFront());
 		currLightingShader.setVec3("spotLight[1].ambient", 0.0f, 0.0f, 0.0f);
 		currLightingShader.setVec3("spotLight[1].diffuse", 1.0f, 1.0f, 1.0f);
 		currLightingShader.setVec3("spotLight[1].specular", 1.0f, 1.0f, 1.0f);
@@ -852,13 +852,34 @@ Camera getCurrentCamera()
 
 void ChangeCameraDir(Camera_Movement direction, float deltaTime)
 {
-	float velocity = 0.5f * deltaTime;
+	float velocity = 5.0f * deltaTime;
 	if (direction == FORWARD)
-		lightDir += velocity;
+		lightPitch += velocity;
 	if (direction == BACKWARD)
-		lightDir -= velocity;
+		lightPitch -= velocity;
 	if (direction == LEFT)
-		lightDir -= velocity;
+		lightYaw += velocity;
 	if (direction == RIGHT)
-		lightDir += velocity;
+		lightYaw -= velocity;
+
+
+	if (lightPitch > 89.0f)
+		lightPitch = 89.0f;
+	if (lightPitch < -89.0f)
+		lightPitch = -89.0f;
+
+
+	if (lightYaw > 89.0f)
+		lightYaw = 89.0f;
+	if (lightYaw < -89.0f)
+		lightYaw = -89.0f;
+}
+
+glm::vec3 CountLightFront()
+{
+	glm::vec3 front;
+	front.x = cos(glm::radians(cameraMovingObj.Yaw + lightYaw)) * cos(glm::radians(cameraMovingObj.Pitch + lightPitch));
+	front.y = sin(glm::radians(cameraMovingObj.Pitch + lightPitch));
+	front.z = sin(glm::radians(cameraMovingObj.Yaw + lightYaw)) * cos(glm::radians(cameraMovingObj.Pitch + lightPitch));
+	return glm::normalize(front);
 }
